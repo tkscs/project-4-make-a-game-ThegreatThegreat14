@@ -1,7 +1,6 @@
 import random
 import pygame
 import sys
-import random
 import time
 from pygame.locals import *
 
@@ -11,7 +10,7 @@ FPS = pygame.time.Clock()
 FPS.tick(60)
 
 Screen_Width = 1200
-Screen_Height = (9/16)*Screen_Width
+Screen_Height = int((9/16)*Screen_Width)
 
 background = pygame.image.load("green.png")
 background = pygame.transform.scale_by(background, 2)
@@ -244,16 +243,140 @@ def play(Still_Col, Moving_Card, Moving_Col):
 
 class Card(pygame.sprite.Sprite):
     def __init__(self, suit, rank):
+        super().__init__()
         self.suit = suit
         self.rank = rank
         filename = f"cards/{rank}{suit}.png"
-        self.image = pygame.image.load(filename)
-        self.image = pygame.transform.scale_by(self.image, 1)
+        self.frontstate = pygame.image.load(filename)
+        self.frontstate = pygame.transform.scale_by(self.frontstate, 0.2)
+        self.backstate = pygame.image.load("cards/Back-R.png")
+        self.backstate = pygame.transform.scale_by(self.backstate, 0.2)
+        self.image = self.backstate
         self.rect = self.image.get_rect()
+        self.is_front = False
+    def flip_card(self):
+        if self.is_front:
+            self.image = self.backstate
+        else:
+            self.image = self.frontstate
+
+Card_Sprites = {}
+Cards_Group = pygame.sprite.Group()
+for card in Cards:
+    Card_Sprites[card] = Card(f"{card[-1]}", f"{card[:-1]}")
+    Cards_Group.add(Card_Sprites[card])
 
 AceH = Card("H", "A")
+TwoH = Card("H", "2")
+ThreeH = Card("H", "3")
+FourH = Card("H", "4")
+FiveH = Card("H", "5")
+SixH = Card("H", "6")
+SevenH = Card("H", "7")
+EightH = Card("H", "8")
+NineH = Card("H", "9")
+TenH = Card("H", "10")
+JackH = Card("H", "J")
+QueenH = Card("H", "Q")
+KingH = Card("H", "K")
+AceD = Card("D", "A")
+TwoD = Card("D", "2")
+ThreeD = Card("D", "3")
+FourD = Card("D", "4")
+FiveD = Card("D", "5")
+SixD = Card("D", "6")
+SevenD = Card("D", "7")
+EightD = Card("D", "8")
+NineD = Card("D", "9")
+TenD = Card("D", "10")
+JackD = Card("D", "J")
+QueenD = Card("D", "Q")
+KingD = Card("D", "K")
+AceS = Card("S", "A")
+TwoS = Card("S", "2")
+ThreeS = Card("S", "3")
+FourS = Card("S", "4")
+FiveS = Card("S", "5")
+SixS = Card("S", "6")
+SevenS = Card("S", "7")
+EightS = Card("S", "8")
+NineS = Card("S", "9")
+TenS = Card("S", "10")
+JackS = Card("S", "J")
+QueenS = Card("S", "Q")
+KingS = Card("S", "K")
+AceC = Card("C", "A")
+TwoC = Card("C", "2")
+ThreeC = Card("C", "3")
+FourC = Card("C", "4")
+FiveC = Card("C", "5")
+SixC = Card("C", "6")
+SevenC = Card("C", "7")
+EightC = Card("C", "8")
+NineC = Card("C", "9")
+TenC = Card("C", "10")
+JackC = Card("C", "J")
+QueenC = Card("C", "Q")
+KingC = Card("C", "K")
 cards = pygame.sprite.Group()
 cards.add(AceH)
+cards.add(TwoH)
+cards.add(ThreeH)
+cards.add(FourH)
+cards.add(FiveH)
+cards.add(SixH)
+cards.add(SevenH)
+cards.add(EightH)
+cards.add(NineH)
+cards.add(TenH)
+cards.add(JackH)
+cards.add(QueenH)
+cards.add(KingH)
+cards.add(AceD)
+cards.add(TwoD)
+cards.add(ThreeD)
+cards.add(FourD)
+cards.add(FiveD)
+cards.add(SixD)
+cards.add(SevenD)
+cards.add(EightD)
+cards.add(NineD)
+cards.add(TenD)
+cards.add(JackD)
+cards.add(QueenD)
+cards.add(KingD)
+cards.add(AceS)
+cards.add(TwoS)
+cards.add(ThreeS)
+cards.add(FourS)
+cards.add(FiveS)
+cards.add(SixS)
+cards.add(SevenS)
+cards.add(EightS)
+cards.add(NineS)
+cards.add(TenS)
+cards.add(JackS)
+cards.add(QueenS)
+cards.add(KingS)
+cards.add(AceC)
+cards.add(TwoC)
+cards.add(ThreeC)
+cards.add(FourC)
+cards.add(FiveC)
+cards.add(SixC)
+cards.add(SevenC)
+cards.add(EightC)
+cards.add(NineC)
+cards.add(TenC)
+cards.add(JackC)
+cards.add(QueenC)
+cards.add(KingC)
+
+for card in Col_1:
+    card.rect.x = 20
+    card.rect.y = 20
+    pygame.display.update()
+
 
 while True:
     for event in pygame.event.get():
@@ -263,7 +386,6 @@ while True:
     DISPLAYSURF.blit(background, (0,0))
     for entity in cards:
         DISPLAYSURF.blit(entity.image, entity.rect)
-        entity.move()
 
     pygame.display.update()
     FPS.tick(60)    
