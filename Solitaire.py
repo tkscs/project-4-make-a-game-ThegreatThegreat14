@@ -23,6 +23,37 @@ Cards = ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH"
 Red_Cards = ["AH", "2H", "3H", "4H", "5H", "6H", "7H", "8H", "9H", "10H", "JH", "QH", "KH", "AD", "2D", "3D", "4D", "5D", "6D", "7D", "8D", "9D", "10D", "JD", "QD", "KD"]
 Black_Cards = ["AS", "2S", "3S", "4S", "5S", "6S", "7S", "8S", "9S", "10S", "JS", "QS", "KS", "AC", "2C", "3C", "4C", "5C", "6C", "7C", "8C", "9C", "10C", "JC", "QC", "KC"]
 
+class Card(pygame.sprite.Sprite):
+    def __init__(self, suit, rank):
+        super().__init__()
+        self.suit = suit
+        self.rank = rank
+        filename = f"cards/{rank}{suit}.png"
+        self.frontstate = pygame.image.load(filename)
+        self.frontstate = pygame.transform.scale_by(self.frontstate, 0.2)
+        self.backstate = pygame.image.load("cards/Back-R.png")
+        self.backstate = pygame.transform.scale_by(self.backstate, 0.2)
+        self.image = self.backstate
+        self.rect = self.image.get_rect()
+        self.is_front = False
+    def flip_card(self):
+        if self.is_front:
+            self.image = self.backstate
+            self.is_front = False
+        else:
+            self.image = self.frontstate
+            self.is_front = True
+    def name(self):
+        return f"{self.rank}{self.suit}"
+
+
+
+Card_Sprites = {}
+Cards_Group = pygame.sprite.LayeredUpdates()
+for card in Cards:
+    Card_Sprites[card] = Card(f"{card[-1]}", f"{card[:-1]}")
+    Cards_Group.add(Card_Sprites[card])
+
 Face_Down = []
 Face_Up = []
 
@@ -127,13 +158,15 @@ def card_red(card):
 
 Card_Size = {"A": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13}
 
-def flip_card(card):
+def flip_card_backend(card):
     if card in Face_Down:
         Face_Up.append(card)
         Face_Down.remove(card)
+        Card_Sprites[card].flip_card()
     elif card in Face_Up:
         Face_Down.append(card)
         Face_Up.remove(card)
+        Card_Sprites[card].flip_card()
 
 def top_card(column):
     if len(column) == 0:
@@ -148,12 +181,19 @@ def draw_card():
             Shuffling_Card = Left_Draw_Pile[-1]
             Right_Draw_Pile.append(Shuffling_Card)
             Left_Draw_Pile.remove(Shuffling_Card)
-            flip_card(Shuffling_Card)
+            Card_Sprites[Shuffling_Card].rect.x = 740
+            Card_Sprites[Shuffling_Card].rect.y = 20
+            flip_card_backend(Shuffling_Card)
+            Cards_Group.move_to_front(Card_Sprites[Shuffling_Card])
     else:
         New_Card = Right_Draw_Pile[-1]
         Left_Draw_Pile.append(New_Card)
         Right_Draw_Pile.remove(New_Card)
-        flip_card(New_Card)
+        Card_Sprites[New_Card].rect.x = 620
+        Card_Sprites[New_Card].rect.y = 20
+        flip_card_backend(New_Card)
+        Cards_Group.move_to_front(Card_Sprites[New_Card])
+
 
 def which_col(card):
     if card in Right_Draw_Pile:
@@ -239,156 +279,96 @@ def play(Still_Col, Moving_Card, Moving_Col):
         Still_Col.append(Moving_Col[Moving_Card_Index])
         Moving_Col.remove(Moving_Col[Moving_Card_Index])
     if top_card(Moving_Col) in Face_Down:
-        flip_card(top_card(Moving_Col))
-
-class Card(pygame.sprite.Sprite):
-    def __init__(self, suit, rank):
-        super().__init__()
-        self.suit = suit
-        self.rank = rank
-        filename = f"cards/{rank}{suit}.png"
-        self.frontstate = pygame.image.load(filename)
-        self.frontstate = pygame.transform.scale_by(self.frontstate, 0.2)
-        self.backstate = pygame.image.load("cards/Back-R.png")
-        self.backstate = pygame.transform.scale_by(self.backstate, 0.2)
-        self.image = self.backstate
-        self.rect = self.image.get_rect()
-        self.is_front = False
-    def flip_card(self):
-        if self.is_front:
-            self.image = self.backstate
-        else:
-            self.image = self.frontstate
-
-Card_Sprites = {}
-Cards_Group = pygame.sprite.Group()
-for card in Cards:
-    Card_Sprites[card] = Card(f"{card[-1]}", f"{card[:-1]}")
-    Cards_Group.add(Card_Sprites[card])
-
-AceH = Card("H", "A")
-TwoH = Card("H", "2")
-ThreeH = Card("H", "3")
-FourH = Card("H", "4")
-FiveH = Card("H", "5")
-SixH = Card("H", "6")
-SevenH = Card("H", "7")
-EightH = Card("H", "8")
-NineH = Card("H", "9")
-TenH = Card("H", "10")
-JackH = Card("H", "J")
-QueenH = Card("H", "Q")
-KingH = Card("H", "K")
-AceD = Card("D", "A")
-TwoD = Card("D", "2")
-ThreeD = Card("D", "3")
-FourD = Card("D", "4")
-FiveD = Card("D", "5")
-SixD = Card("D", "6")
-SevenD = Card("D", "7")
-EightD = Card("D", "8")
-NineD = Card("D", "9")
-TenD = Card("D", "10")
-JackD = Card("D", "J")
-QueenD = Card("D", "Q")
-KingD = Card("D", "K")
-AceS = Card("S", "A")
-TwoS = Card("S", "2")
-ThreeS = Card("S", "3")
-FourS = Card("S", "4")
-FiveS = Card("S", "5")
-SixS = Card("S", "6")
-SevenS = Card("S", "7")
-EightS = Card("S", "8")
-NineS = Card("S", "9")
-TenS = Card("S", "10")
-JackS = Card("S", "J")
-QueenS = Card("S", "Q")
-KingS = Card("S", "K")
-AceC = Card("C", "A")
-TwoC = Card("C", "2")
-ThreeC = Card("C", "3")
-FourC = Card("C", "4")
-FiveC = Card("C", "5")
-SixC = Card("C", "6")
-SevenC = Card("C", "7")
-EightC = Card("C", "8")
-NineC = Card("C", "9")
-TenC = Card("C", "10")
-JackC = Card("C", "J")
-QueenC = Card("C", "Q")
-KingC = Card("C", "K")
-cards = pygame.sprite.Group()
-cards.add(AceH)
-cards.add(TwoH)
-cards.add(ThreeH)
-cards.add(FourH)
-cards.add(FiveH)
-cards.add(SixH)
-cards.add(SevenH)
-cards.add(EightH)
-cards.add(NineH)
-cards.add(TenH)
-cards.add(JackH)
-cards.add(QueenH)
-cards.add(KingH)
-cards.add(AceD)
-cards.add(TwoD)
-cards.add(ThreeD)
-cards.add(FourD)
-cards.add(FiveD)
-cards.add(SixD)
-cards.add(SevenD)
-cards.add(EightD)
-cards.add(NineD)
-cards.add(TenD)
-cards.add(JackD)
-cards.add(QueenD)
-cards.add(KingD)
-cards.add(AceS)
-cards.add(TwoS)
-cards.add(ThreeS)
-cards.add(FourS)
-cards.add(FiveS)
-cards.add(SixS)
-cards.add(SevenS)
-cards.add(EightS)
-cards.add(NineS)
-cards.add(TenS)
-cards.add(JackS)
-cards.add(QueenS)
-cards.add(KingS)
-cards.add(AceC)
-cards.add(TwoC)
-cards.add(ThreeC)
-cards.add(FourC)
-cards.add(FiveC)
-cards.add(SixC)
-cards.add(SevenC)
-cards.add(EightC)
-cards.add(NineC)
-cards.add(TenC)
-cards.add(JackC)
-cards.add(QueenC)
-cards.add(KingC)
+        flip_card_backend(top_card(Moving_Col))
 
 for card in Col_1:
-    card.rect.x = 20
-    card.rect.y = 20
-    pygame.display.update()
+    Card_Sprites[card].rect.x = 20
+    Card_Sprites[card].rect.y = 200
+    flip_card_backend(card)
 
+i = 0
+for card in Col_2:
+    Card_Sprites[card].rect.x = 140
+    Card_Sprites[card].rect.y = 200 + i
+    i += 50
+    Cards_Group.move_to_front(Card_Sprites[card])
+flip_card_backend(Col_2[-1])
+
+i = 0
+for card in Col_3:
+    Card_Sprites[card].rect.x = 260
+    Card_Sprites[card].rect.y = 200 + i
+    i += 50
+    Cards_Group.move_to_front(Card_Sprites[card])
+flip_card_backend(Col_3[-1])
+
+i = 0
+for card in Col_4:
+    Card_Sprites[card].rect.x = 380
+    Card_Sprites[card].rect.y = 200 + i
+    i += 50
+    Cards_Group.move_to_front(Card_Sprites[card])
+flip_card_backend(Col_4[-1])
+
+i = 0
+for card in Col_5:
+    Card_Sprites[card].rect.x = 500
+    Card_Sprites[card].rect.y = 200 + i
+    i += 50
+    Cards_Group.move_to_front(Card_Sprites[card])
+flip_card_backend(Col_5[-1])
+
+i = 0
+for card in Col_6:
+    Card_Sprites[card].rect.x = 620
+    Card_Sprites[card].rect.y = 200 + i
+    i += 50
+    Cards_Group.move_to_front(Card_Sprites[card])
+flip_card_backend(Col_6[-1])
+
+i = 0
+for card in Col_7:
+    Card_Sprites[card].rect.x = 740
+    Card_Sprites[card].rect.y = 200 + i
+    i += 50
+    Cards_Group.move_to_front(Card_Sprites[card])
+flip_card_backend(Col_7[-1])
+
+for card in Right_Draw_Pile:
+    Card_Sprites[card].rect.x = 740
+    Card_Sprites[card].rect.y = 20
+
+def highest_layer_card(list):
+    if len(list) == 1:
+        return list[0]
+    else:
+        col = which_col(list[0])
+        return max(list, key = lambda card: col.index(card))
 
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            Selected_Cards = []
+            for card in Cards_Group:
+                if card.rect.collidepoint(pygame.mouse.get_pos()):
+                    Selected_Cards.append(card.name())
+            Selected_Card = highest_layer_card(Selected_Cards)
+            print(Selected_Card)
     DISPLAYSURF.blit(background, (0,0))
-    for entity in cards:
-        DISPLAYSURF.blit(entity.image, entity.rect)
+    Cards_Group.draw(DISPLAYSURF)     
+
+
+# make the rect of a card be just its sliver/layer above auto gets that rect
+# check if clicking
+# know whatever mouse was on when first clicking
+# check when it stops clicking
+# know whatever mouse was on when done clicking
 
     pygame.display.update()
-    FPS.tick(60)    
+    FPS.tick(60)
 
 
 
